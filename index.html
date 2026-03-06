@@ -2,12 +2,12 @@
 <html>
 <head>
 <title>MHash Tool</title>
-<link rel="icon" href="https://raw.githubusercontent.com/munetracker/mits_json/master/logos/no_bg.png" />
-<meta name="viewport" content="width=device-width" />
 
-<script src="bcrypt.min.js"></script>
+<link rel="icon" href="https://raw.githubusercontent.com/munetracker/mits_json/master/logos/no_bg.png"/>
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script src="bcrypt.min.js"></script>
 
 <style>
 
@@ -126,7 +126,7 @@ h2{
 
 <h2>🔐 Hash Generator</h2>
 
-<input id="password" placeholder="Enter password">
+<input id="password" placeholder="Enter password" autocomplete="off">
 
 <select id="algo">
 <option value="bcrypt">bcrypt</option>
@@ -142,7 +142,7 @@ h2{
 
 <h2>🔎 Hash Verifier</h2>
 
-<input id="verifyPassword" placeholder="Password to verify">
+<input id="verifyPassword" placeholder="Password to verify" autocomplete="off">
 
 <textarea id="verifyHash" rows="4" placeholder="Paste hash here"></textarea>
 
@@ -182,7 +182,7 @@ function toggleDark(){
 
 /* Worker for argon */
 
-let worker = new Worker("argonWorker.js");
+let worker = new Worker("./argonWorker.js");
 
 worker.onmessage = function(e){
 
