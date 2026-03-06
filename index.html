@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>MHash Tool</title>
+<link rel="icon" href="https://raw.githubusercontent.com/munetracker/mits_json/master/logos/no_bg.png" />
+<meta name="viewport" content="width=device-width" />
+
+<script src="bcrypt.min.js"></script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+
+:root{
+    --bg:#f4f6f9;
+    --card:#ffffff;
+    --text:#222;
+    --border:#ddd;
+}
+
+.dark{
+    --bg:#121212;
+    --card:#1e1e1e;
+    --text:#f2f2f2;
+    --border:#333;
+}
+
+body{
+    font-family:Arial, sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    margin:0;
+    padding:20px;
+}
+
+.container{
+    max-width:750px;
+    margin:auto;
+    background:var(--card);
+    padding:25px;
+    border-radius:10px;
+    box-shadow:0 6px 25px rgba(0,0,0,0.15);
+}
+
+h2{
+    margin-top:0;
+}
+
+input,select,textarea{
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    border-radius:6px;
+    border:1px solid var(--border);
+    background:transparent;
+    color:var(--text);
+    font-size:14px;
+}
+
+textarea{
+    resize:vertical;
+}
+
+button{
+    margin-top:15px;
+    padding:12px;
+    width:100%;
+    border:none;
+    border-radius:6px;
+    font-size:15px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.generate{
+    background:#4CAF50;
+    color:white;
+}
+
+.verify{
+    background:#2196F3;
+    color:white;
+}
+
+.toggle{
+    background:#333;
+    color:white;
+    width:auto;
+    padding:8px 14px;
+    float:right;
+}
+
+.success{
+    color:#4CAF50;
+}
+
+.fail{
+    color:#f44336;
+}
+
+hr{
+    margin:35px 0;
+}
+
+@media(max-width:600px){
+
+.container{
+    padding:18px;
+}
+
+h2{
+    font-size:18px;
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<button id="themeBtn" class="toggle" onclick="toggleDark()">🌙 Dark Mode</button>
+
+<h2>🔐 Hash Generator</h2>
+
+<input id="password" placeholder="Enter password">
+
+<select id="algo">
+<option value="bcrypt">bcrypt</option>
+<option value="argon2i">argon2i</option>
+<option value="argon2id">argon2id</option>
+</select>
+
+<button class="generate" onclick="generateHash()">Generate Hash</button>
+
+<textarea id="result" rows="6" placeholder="Generated hash"></textarea>
+
+<hr>
+
+<h2>🔎 Hash Verifier</h2>
+
+<input id="verifyPassword" placeholder="Password to verify">
+
+<textarea id="verifyHash" rows="4" placeholder="Paste hash here"></textarea>
+
+<button class="verify" onclick="verifyHash()">Verify Password</button>
+
+<h3 id="verifyResult"></h3>
+
+</div>
+
+<script>
+
+/* Load saved theme */
+
+(function(){
+
+    const theme = localStorage.getItem("theme");
+
+    if(theme === "dark"){
+        document.body.classList.add("dark");
+        document.getElementById("themeBtn").innerText="☀ Light Mode";
+    }
+
+})();
+
+/* Toggle theme */
+
+function toggleDark(){
+
+    const isDark = document.body.classList.toggle("dark");
+
+    localStorage.setItem("theme", isDark ? "dark" : "light");
+
+    document.getElementById("themeBtn").innerText =
+        isDark ? "☀ Light Mode" : "🌙 Dark Mode";
+
+}
+
+/* Worker for argon */
+
+let worker = new Worker("argonWorker.js");
+
+worker.onmessage = function(e){
+
+    if(!e.data.success){
+        alert(e.data.error);
+        return;
+    }
+
+    if(e.data.mode === "generate"){
+        document.getElementById("result").value = e.data.hash;
+    }
+
+    if(e.data.mode === "verify"){
+
+        const el = document.getElementById("verifyResult");
+
+        if(e.data.valid){
+            el.innerText="✅ Password MATCHES hash";
+            el.className="success";
+        }else{
+            el.innerText="❌ Password does NOT match";
+            el.className="fail";
+        }
+
+    }
+
+};
+
+/* Generate hash */
+
+function generateHash(){
+
+    const password=document.getElementById("password").value;
+    const algo=document.getElementById("algo").value;
+
+    if(!password){
+        alert("Enter password");
+        return;
+    }
+
+    if(algo==="bcrypt"){
+
+        const salt=dcodeIO.bcrypt.genSaltSync(10);
+        const hash=dcodeIO.bcrypt.hashSync(password,salt);
+
+        document.getElementById("result").value=hash;
+        return;
+    }
+
+    document.getElementById("result").value="Generating Argon2 hash...";
+
+    let type;
+
+    if(algo==="argon2i") type=1;
+    if(algo==="argon2id") type=2;
+
+    worker.postMessage({
+        action:"generate",
+        password:password,
+        type:type
+    });
+
+}
+
+/* Verify hash */
+
+async function verifyHash(){
+
+    const password=document.getElementById("verifyPassword").value.trim();
+    const hash=document.getElementById("verifyHash").value.trim();
+
+    if(!password || !hash){
+        alert("Enter password and hash");
+        return;
+    }
+
+    let valid=false;
+
+    try{
+
+        if(hash.startsWith("$2")){
+            valid=dcodeIO.bcrypt.compareSync(password,hash);
+        }
+
+        else if(hash.startsWith("$argon2")){
+
+            document.getElementById("verifyResult").innerText="Verifying Argon2...";
+
+            worker.postMessage({
+                action:"verify",
+                password:password,
+                hash:hash
+            });
+
+            return;
+
+        }
+
+        else{
+            document.getElementById("verifyResult").innerText="❌ Unknown hash format";
+            return;
+        }
+
+    }catch(err){
+
+        document.getElementById("verifyResult").innerText="❌ Verification error: "+err;
+        return;
+    }
+
+    const el=document.getElementById("verifyResult");
+
+    if(valid){
+        el.innerText="✅ Password MATCHES hash";
+        el.className="success";
+    }else{
+        el.innerText="❌ Password does NOT match";
+        el.className="fail";
+    }
+
+}
+
+</script>
+
+</body>
+</html>
