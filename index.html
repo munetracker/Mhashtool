@@ -8,6 +8,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <script src="bcrypt.min.js"></script>
+<script src="sha256Validator.js"></script>
 
 <style>
 
@@ -132,6 +133,7 @@ h2{
 <option value="bcrypt">bcrypt</option>
 <option value="argon2i">argon2i</option>
 <option value="argon2id">argon2id</option>
+<option value="sha256">sha256 (Laravel)</option>
 </select>
 
 <button class="generate" onclick="generateHash()">Generate Hash</button>
@@ -213,7 +215,7 @@ worker.onmessage = function(e){
 
 /* Generate hash */
 
-function generateHash(){
+async function generateHash(){
 
     const password=document.getElementById("password").value;
     const algo=document.getElementById("algo").value;
@@ -223,6 +225,19 @@ function generateHash(){
         return;
     }
 
+    /* SHA256 */
+
+    if(algo==="sha256"){
+
+        const hash = await sha256(password);
+
+        document.getElementById("result").value = hash;
+
+        return;
+    }
+
+    /* bcrypt */
+
     if(algo==="bcrypt"){
 
         const salt=dcodeIO.bcrypt.genSaltSync(10);
@@ -231,6 +246,8 @@ function generateHash(){
         document.getElementById("result").value=hash;
         return;
     }
+
+    /* argon */
 
     document.getElementById("result").value="Generating Argon2 hash...";
 
@@ -281,6 +298,22 @@ async function verifyHash(){
 
         }
 
+        else if(hash.length === 64){
+
+            const valid = await verifySHA256(password, hash);
+
+            const el=document.getElementById("verifyResult");
+
+            if(valid){
+                el.innerText="✅ Password MATCHES SHA256 hash";
+                el.className="success";
+            }else{
+                el.innerText="❌ Password does NOT match SHA256";
+                el.className="fail";
+            }
+
+            return;
+        }
         else{
             document.getElementById("verifyResult").innerText="❌ Unknown hash format";
             return;
