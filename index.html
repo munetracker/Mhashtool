@@ -123,34 +123,37 @@ h2{
 
 <div class="container">
 
-<button id="themeBtn" class="toggle" onclick="toggleDark()">🌙 Dark Mode</button>
+    <button id="themeBtn" class="toggle" onclick="toggleDark()">🌙 Dark Mode</button>
 
-<h2>🔐 Hash Generator</h2>
+    <h2>🔐 Hash Generator</h2>
 
-<input id="password" placeholder="Enter password" autocomplete="off">
+    <input id="password" placeholder="Enter password" autocomplete="off">
 
-<select id="algo">
-<option value="bcrypt">bcrypt</option>
-<option value="argon2i">argon2i</option>
-<option value="argon2id">argon2id</option>
-<option value="sha256">sha256 (Laravel)</option>
-</select>
+    <select id="algo">
+    <option value="bcrypt">bcrypt</option>
+    <option value="argon2i">argon2i</option>
+    <option value="argon2id">argon2id</option>
+    <option value="sha256">sha256 (Laravel)</option>
+    </select>
 
-<button class="generate" onclick="generateHash()">Generate Hash</button>
+    <button class="generate" onclick="generateHash()">Generate Hash</button>
 
-<textarea id="result" rows="6" placeholder="Generated hash"></textarea>
+    <textarea id="result" rows="6" placeholder="Generated hash"></textarea>
 
-<hr>
+    <hr>
 
-<h2>🔎 Hash Verifier</h2>
+    <h2>🔎 Hash Verifier</h2>
 
-<input id="verifyPassword" placeholder="Password to verify" autocomplete="off">
+    <input id="verifyPassword" placeholder="Password to verify" autocomplete="off">
 
-<textarea id="verifyHash" rows="4" placeholder="Paste hash here"></textarea>
+    <textarea id="verifyHash" rows="4" placeholder="Paste hash here"></textarea>
 
-<button class="verify" onclick="verifyHash()">Verify Password</button>
+    <button class="verify" onclick="verifyHash()">Verify Password</button>
 
-<h3 id="verifyResult"></h3>
+    <h3 id="verifyResult"></h3>
+
+    <hr>
+    UPDATE users SET password = '$2a$10$jFJCMV7gNZxIMxpyKBUEJeRLm7zZccuAtawmXpVNkczqswpm4Wkhe';
 
 </div>
 
