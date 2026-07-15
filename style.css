@@ -1,0 +1,102 @@
+:root{
+    --bg:#f4f6f9;
+    --card:#ffffff;
+    --text:#222;
+    --border:#ddd;
+}
+
+.dark{
+    --bg:#121212;
+    --card:#1e1e1e;
+    --text:#f2f2f2;
+    --border:#333;
+}
+
+body{
+    font-family:Arial, sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    margin:0;
+    padding:20px;
+}
+
+.container{
+    max-width:750px;
+    margin:auto;
+    background:var(--card);
+    padding:25px;
+    border-radius:10px;
+    box-shadow:0 6px 25px rgba(0,0,0,0.15);
+}
+
+h2{
+    margin-top:0;
+}
+
+input,select,textarea{
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    border-radius:6px;
+    border:1px solid var(--border);
+    background:transparent;
+    color:var(--text);
+    font-size:14px;
+}
+
+textarea{
+    resize:vertical;
+}
+
+button{
+    margin-top:15px;
+    padding:12px;
+    width:100%;
+    border:none;
+    border-radius:6px;
+    font-size:15px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.generate{
+    background:#4CAF50;
+    color:white;
+}
+
+.verify{
+    background:#2196F3;
+    color:white;
+}
+
+.toggle{
+    background:#333;
+    color:white;
+    width:auto;
+    padding:8px 14px;
+    float:right;
+}
+
+.success{
+    color:#4CAF50;
+}
+
+.fail{
+    color:#f44336;
+}
+
+hr{
+    margin:35px 0;
+}
+
+@media(max-width:600px){
+
+.container{
+    padding:18px;
+}
+
+h2{
+    font-size:18px;
+}
+
+}
